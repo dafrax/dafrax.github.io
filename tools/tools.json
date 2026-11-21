@@ -1,0 +1,22 @@
+[
+  {
+    "id": "pocketpilot",
+    "name": "PocketPilot",
+    "description": "Kelola alokasi dan redistribusi saldo ke empat pocket keuangan.",
+    "category": "Productivity",
+    "url": "./PocketPilot.html",
+    "icon": "wallet",
+    "tags": ["finance", "allocation", "productivity"],
+    "status": "active"
+  },
+  {
+    "id": "financial-freedom-calculator",
+    "name": "Financial Freedom Calculator",
+    "description": "Hitung estimasi modal financial freedom dari pengeluaran dan withdrawal rate.",
+    "category": "Productivity",
+    "url": "./financial-freedom-calc.html",
+    "icon": "chart",
+    "tags": ["finance", "calculator", "planning"],
+    "status": "active"
+  }
+]
