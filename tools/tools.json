@@ -18,5 +18,15 @@
     "icon": "chart",
     "tags": ["finance", "calculator", "planning"],
     "status": "active"
+  },
+  {
+    "id": "financial-freedom-simulator",
+    "name": "Goal-Based Financial Freedom Simulator",
+    "description": "Simulasikan goal passive income, modal, setoran, inflasi, return, dan milestone financial freedom.",
+    "category": "Productivity",
+    "url": "./financial-freedom-simulator.html",
+    "icon": "chart",
+    "tags": ["finance", "goal", "simulation", "freedom"],
+    "status": "active"
   }
 ]
