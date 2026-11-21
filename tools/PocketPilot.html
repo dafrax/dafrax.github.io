@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f4e8ef">
-  <title>PocketPilot - Pocket Allocation Manager</title>
+  <title>PocketPilot - Pengelola Alokasi Keuangan</title>
   <style>
     :root { --bg:#f7f1f4; --surface:#fffafc; --ink:#29232d; --muted:#766d78; --line:#eadde5; --accent:#bd6f92; --accent-dark:#8e496b; --lav:#dfd9f3; --pink:#f4d9e5; --sage:#dcebdc; --gold:#f7e4b8; --shadow:0 22px 60px rgba(86,45,71,.12); }
     [data-theme="dark"] { --bg:#201c25; --surface:#2c2631; --ink:#f9f1f6; --muted:#c7b9c4; --line:#493c4b; --accent:#e5a0bc; --accent-dark:#ffd1e2; --lav:#514a6d; --pink:#643d50; --sage:#3e5c48; --gold:#655330; --shadow:0 22px 60px rgba(0,0,0,.26); }
@@ -55,38 +55,50 @@
     .transfer-list { display:grid; gap:10px; margin-top:20px; }
     .transfer { display:flex; justify-content:space-between; gap:12px; padding:15px 17px; border:1px solid var(--line); border-radius:15px; background:var(--surface); }
     .transfer strong { color:var(--accent-dark); }
+    .help { margin-top:20px; padding:24px; }
+    .help-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:16px; }
+    .help-card { padding:16px; border-radius:18px; background:var(--bg); }
+    .help-card p { margin:8px 0 0; color:var(--muted); line-height:1.55; }
     .history { margin-top:20px; padding:24px; }
     .history-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
     .history-list { display:grid; gap:8px; margin-top:14px; }
     .history-item { display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line); color:var(--muted); font-size:.9rem; }
     .empty { color:var(--muted); font-size:.9rem; }
-    @media (max-width:720px) { .shell{width:min(100% - 20px,560px);padding-top:22px} header{align-items:flex-start}.cards{grid-template-columns:repeat(2,1fr)}.balance-grid{grid-template-columns:1fr}.summary{align-items:flex-start;flex-direction:column}.mode{padding:20px}.tab{font-size:.83rem;padding:12px 8px} }
+    @media (max-width:720px) { .shell{width:min(100% - 20px,560px);padding-top:22px} header{align-items:flex-start}.cards{grid-template-columns:repeat(2,1fr)}.balance-grid,.help-grid{grid-template-columns:1fr}.summary{align-items:flex-start;flex-direction:column}.mode{padding:20px}.tab{font-size:.83rem;padding:12px 8px} }
     @media (max-width:390px) { .cards{grid-template-columns:1fr}.actions>*{width:100%} }
   </style>
 </head>
 <body>
   <main class="shell">
     <header>
-      <div><p class="eyebrow">Pocket allocation manager</p><h1>PocketPilot</h1><p class="tagline">Give every rupiah a destination. Allocate with intention, then rebalance without losing sight of the whole.</p></div>
-      <button class="icon-button" id="themeToggle" type="button" aria-label="Toggle dark mode">◐</button>
+      <div><p class="eyebrow">Pengelola alokasi keuangan</p><h1>PocketPilot</h1><p class="tagline">Berikan tujuan untuk setiap rupiah. Atur alokasi dengan sadar, lalu seimbangkan kembali tanpa mengubah total kekayaan.</p></div>
+      <button class="icon-button" id="themeToggle" type="button" aria-label="Ubah tema terang atau gelap">◐</button>
     </header>
-    <nav class="tabs panel" aria-label="Calculator modes">
-      <button class="tab active" data-mode="allocation" type="button">New allocation</button>
-      <button class="tab" data-mode="redistribution" type="button">Redistribution</button>
+    <nav class="tabs panel" aria-label="Mode kalkulator">
+      <button class="tab active" data-mode="allocation" type="button">Alokasi baru</button>
+      <button class="tab" data-mode="redistribution" type="button">Redistribusi pocket</button>
     </nav>
+    <section class="panel help">
+      <h2>Cara menggunakan PocketPilot</h2>
+      <div class="help-grid">
+        <article class="help-card"><h3>Alokasi baru</h3><p>Masukkan pemasukan atau nominal baru. PocketPilot membaginya otomatis menjadi Wealth 50%, Income 25%, Safety 15%, dan Rewards 10%.</p></article>
+        <article class="help-card"><h3>Redistribusi pocket</h3><p>Masukkan saldo setiap pocket saat ini. Aplikasi menghitung target dan memberi instruksi transfer dari pocket yang berlebih ke pocket yang kekurangan.</p></article>
+      </div>
+      <p class="hint">Redistribusi tidak menambah atau mengurangi total kekayaan. Riwayat tersimpan hanya di perangkat ini.</p>
+    </section>
     <section class="panel mode active" id="allocationMode">
-      <div class="section-head"><div><h2>Start with a number.</h2><p class="hint">Split a fresh income into four purposeful pockets.</p></div></div>
-      <div class="input-wrap"><label for="allocationAmount">Amount to allocate</label><input id="allocationAmount" inputmode="numeric" placeholder="e.g. 10.000.000" autocomplete="off"><p class="error" id="allocationError" role="alert"></p></div>
-      <div class="actions"><button class="primary" id="allocateButton" type="button">Allocate my money</button><button class="secondary" id="copyAllocation" type="button">Copy results</button><button class="danger" id="resetAllocation" type="button">Reset</button></div>
-      <div id="allocationOutput" hidden><div class="summary"><span>Total allocated</span><strong id="allocationTotal">Rp0</strong></div><div class="cards" id="allocationCards"></div></div>
+      <div class="section-head"><div><h2>Mulai dari sebuah nominal.</h2><p class="hint">Bagikan pemasukan baru ke empat pocket dengan tujuan yang jelas.</p></div></div>
+      <div class="input-wrap"><label for="allocationAmount">Nominal yang akan dialokasikan</label><input id="allocationAmount" inputmode="numeric" placeholder="Contoh: 10.000.000" autocomplete="off"><p class="error" id="allocationError" role="alert"></p></div>
+      <div class="actions"><button class="primary" id="allocateButton" type="button">Alokasikan uang saya</button><button class="secondary" id="copyAllocation" type="button">Salin hasil</button><button class="danger" id="resetAllocation" type="button">Atur ulang</button></div>
+      <div id="allocationOutput" hidden><div class="summary"><span>Total yang dialokasikan</span><strong id="allocationTotal">Rp0</strong></div><div class="cards" id="allocationCards"></div></div>
     </section>
     <section class="panel mode" id="redistributionMode">
-      <div class="section-head"><div><h2>Bring it back to balance.</h2><p class="hint">Enter what each pocket holds today. The total never changes.</p></div></div>
+      <div class="section-head"><div><h2>Kembalikan keseimbangannya.</h2><p class="hint">Masukkan saldo setiap pocket saat ini. Total kekayaan tidak akan berubah.</p></div></div>
       <div class="balance-grid" id="balanceFields"></div><p class="error" id="redistributionError" role="alert"></p>
-      <div class="actions"><button class="primary" id="redistributeButton" type="button">Find my balance</button><button class="secondary" id="copyRedistribution" type="button">Copy results</button><button class="danger" id="resetRedistribution" type="button">Reset</button></div>
-      <div id="redistributionOutput" hidden><div class="summary"><span>Total wealth preserved</span><strong id="redistributionTotal">Rp0</strong></div><div class="cards" id="redistributionCards"></div><h3 style="margin-top:28px">Transfer plan</h3><div class="transfer-list" id="transferList"></div></div>
+      <div class="actions"><button class="primary" id="redistributeButton" type="button">Cari keseimbangan</button><button class="secondary" id="copyRedistribution" type="button">Salin hasil</button><button class="danger" id="resetRedistribution" type="button">Atur ulang</button></div>
+      <div id="redistributionOutput" hidden><div class="summary"><span>Total kekayaan tetap</span><strong id="redistributionTotal">Rp0</strong></div><div class="cards" id="redistributionCards"></div><h3 style="margin-top:28px">Rencana transfer</h3><div class="transfer-list" id="transferList"></div></div>
     </section>
-    <section class="panel history"><div class="history-head"><div><h2>Recent flights</h2><p class="hint">Your last calculations, kept on this device.</p></div><button class="danger" id="clearHistory" type="button">Clear history</button></div><div class="history-list" id="historyList"></div></section>
+    <section class="panel history"><div class="history-head"><div><h2>Riwayat perhitungan</h2><p class="hint">Perhitungan terakhir yang tersimpan di perangkat ini.</p></div><button class="danger" id="clearHistory" type="button">Hapus riwayat</button></div><div class="history-list" id="historyList"></div></section>
   </main>
   <script>
     (() => {
@@ -112,7 +124,7 @@
         return { total, amounts, rows };
       };
       const redistribute = balances => {
-        if (!balances || pocketNames.some(name => !Number.isSafeInteger(balances[name]) || balances[name] < 0)) throw new Error('Balances must be whole, non-negative integers');
+        if (!balances || pocketNames.some(name => !Number.isSafeInteger(balances[name]) || balances[name] < 0)) throw new Error('Saldo harus berupa angka bulat dan tidak negatif');
         const actual = Object.fromEntries(pocketNames.map(name => [name, balances[name]]));
         const total = pocketNames.reduce((sum, name) => sum + actual[name], 0);
         const targets = allocate(total).amounts;
@@ -127,17 +139,17 @@
       const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
       const readHistory = () => { try { const value = JSON.parse(localStorage.getItem('pocketpilot-history') || '[]'); return Array.isArray(value) ? value : []; } catch { return []; } };
       const saveHistory = item => { try { const history = [item, ...readHistory()].slice(0,8); localStorage.setItem('pocketpilot-history', JSON.stringify(history)); renderHistory(); } catch {} };
-      const renderHistory = () => { const history = readHistory(); $('historyList').innerHTML = history.length ? history.map(item => `<div class="history-item"><span>${escapeHtml(item.type)} · ${escapeHtml(item.date)}</span><strong>${formatRupiah(item.total)}</strong></div>`).join('') : '<p class="empty">No calculations yet.</p>'; };
-      const renderCards = (target, result, mode) => { target.innerHTML = pockets.map(p => { const value = mode === 'allocation' ? result.amounts[p.name] : result.actual[p.name]; const targetValue = mode === 'redistribution' ? `<div class="meta">Target ${formatRupiah(result.targets[p.name])}</div>` : `<div class="meta">${p.ratio}% of total</div>`; return `<article class="pocket-card" style="--pocket-bg:${p.bg}"><div class="pocket-icon" aria-hidden="true">${p.icon}</div><h3>${p.name}</h3><div class="amount">${formatRupiah(value)}</div>${targetValue}</article>`; }).join(''); };
+      const renderHistory = () => { const history = readHistory(); $('historyList').innerHTML = history.length ? history.map(item => `<div class="history-item"><span>${escapeHtml(item.type)} · ${escapeHtml(item.date)}</span><strong>${formatRupiah(item.total)}</strong></div>`).join('') : '<p class="empty">Belum ada perhitungan.</p>'; };
+      const renderCards = (target, result, mode) => { target.innerHTML = pockets.map(p => { const value = mode === 'allocation' ? result.amounts[p.name] : result.actual[p.name]; const targetValue = mode === 'redistribution' ? `<div class="meta">Target ${formatRupiah(result.targets[p.name])}</div>` : `<div class="meta">${p.ratio}% dari total</div>`; return `<article class="pocket-card" style="--pocket-bg:${p.bg}"><div class="pocket-icon" aria-hidden="true">${p.icon}</div><h3>${p.name}</h3><div class="amount">${formatRupiah(value)}</div>${targetValue}</article>`; }).join(''); };
       const parseInput = input => safeNumber(input.value);
       const showError = (element, message) => { element.textContent = message; };
-      const doAllocation = () => { const value = parseInput($('allocationAmount')); if (!validateAmount(value)) return showError($('allocationError'), 'Enter a whole Rupiah amount greater than zero.'); showError($('allocationError'), ''); const result = allocate(value); $('allocationTotal').textContent = formatRupiah(result.total); renderCards($('allocationCards'), result, 'allocation'); $('allocationOutput').hidden = false; saveHistory({ type:'Allocation', total:value, date:new Date().toLocaleString('id-ID') }); };
-      const doRedistribution = () => { const balances = Object.fromEntries(pocketNames.map(name => [name, parseInput($(`balance-${name}`))])); if (pocketNames.some(name => !Number.isSafeInteger(balances[name]) || balances[name] < 0)) return showError($('redistributionError'), 'Use whole, non-negative Rupiah amounts in every pocket.'); const result = redistribute(balances); showError($('redistributionError'), ''); $('redistributionTotal').textContent = formatRupiah(result.total); renderCards($('redistributionCards'), result, 'redistribution'); $('transferList').innerHTML = result.transfers.length ? result.transfers.map(t => `<div class="transfer"><span>Move <strong>${formatRupiah(t.amount)}</strong> from ${t.from} to ${t.to}</span><span aria-hidden="true">→</span></div>`).join('') : '<p class="empty">Everything is already balanced.</p>'; $('redistributionOutput').hidden = false; saveHistory({ type:'Redistribution', total:result.total, date:new Date().toLocaleString('id-ID') }); };
-      const copyText = text => { if (navigator.clipboard) return navigator.clipboard.writeText(text).then(() => alert('Results copied.')).catch(() => alert(text)); const area=document.createElement('textarea'); area.value=text; document.body.appendChild(area); area.select(); document.execCommand('copy'); area.remove(); alert('Results copied.'); };
+      const doAllocation = () => { const value = parseInput($('allocationAmount')); if (!validateAmount(value)) return showError($('allocationError'), 'Masukkan nominal Rupiah bulat yang lebih besar dari nol.'); showError($('allocationError'), ''); const result = allocate(value); $('allocationTotal').textContent = formatRupiah(result.total); renderCards($('allocationCards'), result, 'allocation'); $('allocationOutput').hidden = false; saveHistory({ type:'Alokasi baru', total:value, date:new Date().toLocaleString('id-ID') }); };
+      const doRedistribution = () => { const balances = Object.fromEntries(pocketNames.map(name => [name, parseInput($(`balance-${name}`))])); if (pocketNames.some(name => !Number.isSafeInteger(balances[name]) || balances[name] < 0)) return showError($('redistributionError'), 'Gunakan nominal Rupiah bulat dan tidak negatif pada setiap pocket.'); const result = redistribute(balances); showError($('redistributionError'), ''); $('redistributionTotal').textContent = formatRupiah(result.total); renderCards($('redistributionCards'), result, 'redistribution'); $('transferList').innerHTML = result.transfers.length ? result.transfers.map(t => `<div class="transfer"><span>Pindahkan <strong>${formatRupiah(t.amount)}</strong> dari ${t.from} ke ${t.to}</span><span aria-hidden="true">→</span></div>`).join('') : '<p class="empty">Semua pocket sudah seimbang.</p>'; $('redistributionOutput').hidden = false; saveHistory({ type:'Redistribusi pocket', total:result.total, date:new Date().toLocaleString('id-ID') }); };
+      const copyText = text => { if (navigator.clipboard) return navigator.clipboard.writeText(text).then(() => alert('Hasil berhasil disalin.')).catch(() => alert(text)); const area=document.createElement('textarea'); area.value=text; document.body.appendChild(area); area.select(); document.execCommand('copy'); area.remove(); alert('Hasil berhasil disalin.'); };
       $('allocateButton').addEventListener('click', doAllocation); $('redistributeButton').addEventListener('click', doRedistribution);
       $('copyAllocation').addEventListener('click', () => { const value = parseInput($('allocationAmount')); if (validateAmount(value)) { const r=allocate(value); copyText(pockets.map(p => `${p.name}: ${formatRupiah(r.amounts[p.name])}`).join('\n')); } });
-      $('copyRedistribution').addEventListener('click', () => { const value = Object.fromEntries(pocketNames.map(n => [n, parseInput($(`balance-${n}`))])); if (pocketNames.some(n => !Number.isSafeInteger(value[n]) || value[n] < 0)) return showError($('redistributionError'), 'Use whole, non-negative Rupiah amounts in every pocket.'); const r=redistribute(value); copyText(r.transfers.map(t => `${t.from} -> ${t.to}: ${formatRupiah(t.amount)}`).join('\n') || 'Already balanced.'); });
-      $('resetAllocation').addEventListener('click', () => { $('allocationAmount').value=''; $('allocationOutput').hidden=true; showError($('allocationError'),''); }); $('resetRedistribution').addEventListener('click', () => { pocketNames.forEach(n => $(`balance-${n}`).value=''); $('redistributionOutput').hidden=true; showError($('redistributionError'),''); });
+      $('copyRedistribusi pocket').addEventListener('click', () => { const value = Object.fromEntries(pocketNames.map(n => [n, parseInput($(`balance-${n}`))])); if (pocketNames.some(n => !Number.isSafeInteger(value[n]) || value[n] < 0)) return showError($('redistributionError'), 'Gunakan nominal Rupiah bulat dan tidak negatif pada setiap pocket.'); const r=redistribute(value); copyText(r.transfers.map(t => `${t.from} -> ${t.to}: ${formatRupiah(t.amount)}`).join('\n') || 'Semua pocket sudah seimbang.'); });
+      $('resetAllocation').addEventListener('click', () => { $('allocationAmount').value=''; $('allocationOutput').hidden=true; showError($('allocationError'),''); }); $('resetRedistribusi pocket').addEventListener('click', () => { pocketNames.forEach(n => $(`balance-${n}`).value=''); $('redistributionOutput').hidden=true; showError($('redistributionError'),''); });
       $('clearHistory').addEventListener('click', () => { try { localStorage.removeItem('pocketpilot-history'); } catch {} renderHistory(); });
       document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.mode').forEach(m=>m.classList.remove('active')); tab.classList.add('active'); $(`${tab.dataset.mode}Mode`).classList.add('active'); }));
       $('themeToggle').addEventListener('click', () => { const dark = document.documentElement.dataset.theme === 'dark'; document.documentElement.dataset.theme = dark ? '' : 'dark'; try { localStorage.setItem('pocketpilot-theme', dark ? 'light' : 'dark'); } catch {} });
