@@ -15,27 +15,17 @@
   </style>
 </head>
 <body>
-  <section class="auth" id="loginView">
-    <div class="auth-card"><p class="kicker">Personal tools portal</p><div class="brand">DAFRAX / TOOLS</div><h1>Welcome back.</h1><p>Masuk untuk membuka direktori tools pribadi.</p><form id="loginForm"><div class="field"><label for="password">Password</label><div class="password-row"><input class="input" id="password" type="password" autocomplete="current-password" required><button class="outline" id="showPassword" type="button">Show</button></div></div><p class="error" id="loginError" role="alert"></p><button class="primary" id="loginButton" type="submit">Masuk</button></form><div class="notice">Catatan: ini adalah gate client-side untuk mengurangi akses kasual. GitHub Pages tidak menyediakan autentikasi privat yang sebenarnya, dan password demo dapat terlihat di source publik.</div></div>
-  </section>
-  <section class="app hidden" id="dashboardView">
-    <header class="topbar"><div><small>Personal tools portal</small><h1>DAFRAX / TOOLS</h1></div><div class="top-actions"><span class="counter" id="toolCounter">0 tools</span><button class="icon-btn" id="themeToggle" type="button" aria-label="Toggle theme">◐</button><button class="outline" id="logoutButton" type="button">Logout</button></div></header>
+  <section class="app" id="dashboardView">
+    <header class="topbar"><div><small>Personal tools portal</small><h1>DAFRAX / TOOLS</h1></div><div class="top-actions"><span class="counter" id="toolCounter">0 tools</span><button class="icon-btn" id="themeToggle" type="button" aria-label="Toggle theme">◐</button></div></header>
     <div class="dashboard"><aside class="sidebar"><h2>Browse</h2><nav class="categories" id="categories" aria-label="Tool categories"></nav><button class="outline" id="clearRecent" type="button" style="margin-top:18px;width:100%">Clear recent</button></aside><main><div class="content-head"><div><h2 id="viewTitle">All tools</h2><p id="viewSubtitle">Your compact personal toolkit.</p></div><div class="search"><input class="input" id="searchInput" type="search" placeholder="Search tools, tags, categories..." aria-label="Search tools"><button class="icon-btn" id="clearSearch" type="button" aria-label="Clear search">×</button></div></div><div class="tools-grid" id="toolsGrid" aria-live="polite"></div><section class="recent"><h2>Recently used</h2><div class="recent-list" id="recentList"></div></section></main></div>
   </section>
   <script>
     (() => {
-      const DEMO_PASSWORD = 'DAFRAX-DEMO';
       const categories = ['All Tools','Network','Developer','Security','Utilities','Productivity','Other'];
       let tools = [], activeCategory = 'All Tools', query = '';
       const $ = id => document.getElementById(id);
       const escapeHtml = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
       const icon = name => name === 'wallet' ? '▣' : name === 'chart' ? '↗' : '◆';
-      const isAuthenticated = () => sessionStorage.getItem('dafrax-tools-session') === 'authenticated';
-      const showDashboard = () => { $('loginView').classList.add('hidden'); $('dashboardView').classList.remove('hidden'); loadCatalog(); };
-      const showLogin = () => { $('dashboardView').classList.add('hidden'); $('loginView').classList.remove('hidden'); $('password').focus(); };
-      $('loginForm').addEventListener('submit', event => { event.preventDefault(); const button=$('loginButton'); button.disabled=true; button.textContent='Checking...'; setTimeout(() => { if ($('password').value === DEMO_PASSWORD) { sessionStorage.setItem('dafrax-tools-session','authenticated'); $('loginError').textContent=''; showDashboard(); } else { $('loginError').textContent='Password tidak valid.'; } button.disabled=false; button.textContent='Masuk'; }, 180); });
-      $('showPassword').addEventListener('click', () => { const input=$('password'); const visible=input.type === 'text'; input.type=visible?'password':'text'; $('showPassword').textContent=visible?'Show':'Hide'; });
-      $('logoutButton').addEventListener('click', () => { sessionStorage.removeItem('dafrax-tools-session'); showLogin(); });
       $('themeToggle').addEventListener('click', () => { const dark=document.documentElement.dataset.theme !== 'light'; document.documentElement.dataset.theme=dark?'light':'dark'; localStorage.setItem('dafrax-tools-theme',dark?'light':'dark'); });
       $('searchInput').addEventListener('input', event => { query=event.target.value.trim().toLowerCase(); render(); }); $('clearSearch').addEventListener('click', () => { $('searchInput').value='';query='';render(); });
       $('clearRecent').addEventListener('click', () => { localStorage.removeItem('dafrax-tools-recent'); renderRecent(); });
@@ -51,7 +41,7 @@
       const normalizeTool = tool => { if (!tool || tool.status !== 'active' || typeof tool.id !== 'string' || typeof tool.name !== 'string' || !isSafeRelativeUrl(tool.url)) return null; return { id:tool.id, name:tool.name, description:typeof tool.description==='string'?tool.description:'', category:categories.includes(tool.category)?tool.category:'Other', url:tool.url, icon:typeof tool.icon==='string'?tool.icon:'tool', tags:Array.isArray(tool.tags)?tool.tags.filter(tag=>typeof tag==='string').slice(0,8):[], status:'active' }; };
       const loadCatalog = () => { fetch('./tools.json').then(response=>{if(!response.ok)throw new Error('Catalog unavailable');return response.json();}).then(data=>{tools=Array.isArray(data)?data.map(normalizeTool).filter(Boolean):[];render();}).catch(()=>{$('toolsGrid').innerHTML='<div class="empty">Catalog gagal dimuat. Periksa file tools.json.</div>';}); };
       document.documentElement.dataset.theme=localStorage.getItem('dafrax-tools-theme')||'dark';
-      if (isAuthenticated()) showDashboard(); else showLogin();
+      loadCatalog();
     })();
   </script>
 </body>

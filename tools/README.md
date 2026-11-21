@@ -1,10 +1,10 @@
 # DAFRAX Tools
 
-Personal tools portal hosted at `https://dafrax.github.io/tools/` with a client-side session gate and catalog dashboard.
+Personal tools portal hosted at `https://dafrax.github.io/tools/` with a catalog dashboard.
 
 ## Structure
 
-- `index.html` - login gate and dashboard UI.
+- `index.html` - public dashboard UI.
 - `tools.json` - single source of truth for active tools.
 - `PocketPilot.html` - pocket allocation and redistribution calculator.
 - `financial-freedom-calc.html` - financial freedom calculator.
@@ -17,7 +17,7 @@ The dashboard loads `tools.json` with `fetch`, so open it through a local static
 python3 -m http.server 8000 --directory tools
 ```
 
-Open `http://localhost:8000/` and use the demo password `DAFRAX-DEMO`.
+Open `http://localhost:8000/` to view the dashboard.
 
 ## GitHub Pages
 
@@ -29,7 +29,7 @@ All catalog URLs are relative to `/tools/`, so the existing tool URLs remain unc
 
 ## Security Limitation
 
-This portal uses a client-side password gate because GitHub Pages is static hosting. The demo password is present in publicly downloadable JavaScript and is not a secret. The gate only discourages casual visitors; it is not genuine authentication or access control. Do not place private data, credentials, tokens, or API keys in this repository. Authentication state uses `sessionStorage` and ends with the browser session; favorites, theme, and recently used tools use `localStorage` and are not security controls.
+This dashboard is public because GitHub Pages is static hosting. It does not provide authentication or access control. Do not place private data, credentials, tokens, or API keys in this repository. Favorites, theme, and recently used tools use `localStorage` only for browser preferences and are not security controls. For genuinely private tools, serve them from a private origin protected by Tailscale, Cloudflare Access, or a server-side authentication layer.
 
 ## Add a Tool
 
