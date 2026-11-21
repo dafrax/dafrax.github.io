@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4e8ef">
+  <title>PocketPilot - Pocket Allocation Manager</title>
+  <style>
+    :root { --bg:#f7f1f4; --surface:#fffafc; --ink:#29232d; --muted:#766d78; --line:#eadde5; --accent:#bd6f92; --accent-dark:#8e496b; --lav:#dfd9f3; --pink:#f4d9e5; --sage:#dcebdc; --gold:#f7e4b8; --shadow:0 22px 60px rgba(86,45,71,.12); }
+    [data-theme="dark"] { --bg:#201c25; --surface:#2c2631; --ink:#f9f1f6; --muted:#c7b9c4; --line:#493c4b; --accent:#e5a0bc; --accent-dark:#ffd1e2; --lav:#514a6d; --pink:#643d50; --sage:#3e5c48; --gold:#655330; --shadow:0 22px 60px rgba(0,0,0,.26); }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; color:var(--ink); background:radial-gradient(circle at 10% 0%,var(--pink),transparent 32rem),radial-gradient(circle at 100% 18%,var(--lav),transparent 30rem),var(--bg); font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+    button,input { font:inherit; }
+    button { cursor:pointer; }
+    .shell { width:min(1120px,calc(100% - 32px)); margin:auto; padding:34px 0 60px; }
+    header { display:flex; justify-content:space-between; align-items:center; gap:20px; margin-bottom:30px; }
+    .eyebrow { margin:0 0 6px; color:var(--accent-dark); font-size:.76rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+    h1 { margin:0; font-family:Georgia,serif; font-size:clamp(2.2rem,6vw,4.5rem); line-height:.95; letter-spacing:-.06em; }
+    .tagline { max-width:430px; margin:14px 0 0; color:var(--muted); line-height:1.6; }
+    .icon-button { width:44px; height:44px; border:1px solid var(--line); border-radius:50%; color:var(--ink); background:var(--surface); box-shadow:var(--shadow); }
+    .panel { border:1px solid rgba(255,255,255,.45); border-radius:28px; background:color-mix(in srgb,var(--surface) 88%,transparent); box-shadow:var(--shadow); backdrop-filter:blur(16px); }
+    .tabs { display:flex; gap:8px; padding:7px; margin-bottom:20px; }
+    .tab { flex:1; border:0; border-radius:20px; padding:14px 16px; color:var(--muted); background:transparent; font-weight:800; }
+    .tab.active { color:var(--ink); background:var(--pink); }
+    .mode { display:none; padding:clamp(20px,4vw,38px); }
+    .mode.active { display:block; animation:rise .35s ease both; }
+    @keyframes rise { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+    .section-head { display:flex; justify-content:space-between; align-items:end; gap:16px; margin-bottom:24px; }
+    h2,h3 { margin:0; font-family:Georgia,serif; letter-spacing:-.03em; }
+    h2 { font-size:clamp(1.5rem,3vw,2.2rem); }
+    .hint { margin:6px 0 0; color:var(--muted); }
+    .input-wrap { position:relative; margin:22px 0; }
+    label { display:block; margin-bottom:8px; font-size:.82rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase; }
+    input { width:100%; padding:17px 18px; border:1px solid var(--line); border-radius:16px; outline:0; color:var(--ink); background:var(--bg); font-size:1.15rem; }
+    input:focus { border-color:var(--accent); box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent); }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+    .primary,.secondary,.danger { border:0; border-radius:15px; padding:13px 18px; font-weight:800; }
+    .primary { color:#fff; background:var(--accent-dark); }
+    .secondary { color:var(--ink); background:var(--lav); }
+    .danger { color:var(--accent-dark); background:transparent; }
+    .error { min-height:1.3em; color:#b3415f; font-size:.9rem; font-weight:700; }
+    .summary { display:flex; align-items:baseline; justify-content:space-between; gap:15px; padding:18px 20px; margin:22px 0; border-radius:18px; background:var(--gold); }
+    .summary strong { font-size:clamp(1.35rem,4vw,2.1rem); }
+    .cards { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+    .pocket-card { position:relative; overflow:hidden; min-height:172px; padding:19px; border-radius:22px; background:var(--pocket-bg); }
+    .pocket-card::after { content:""; position:absolute; width:90px; height:90px; right:-25px; bottom:-28px; border-radius:50%; background:rgba(255,255,255,.28); }
+    .pocket-icon { display:grid; place-items:center; width:40px; height:40px; margin-bottom:22px; border-radius:13px; background:rgba(255,255,255,.55); font-size:1.35rem; }
+    .pocket-card h3 { font-family:inherit; font-size:.9rem; letter-spacing:.04em; text-transform:uppercase; }
+    .amount { margin-top:8px; font-size:clamp(1.15rem,2.5vw,1.65rem); font-weight:900; letter-spacing:-.04em; }
+    .meta { margin-top:6px; color:color-mix(in srgb,var(--ink) 65%,transparent); font-size:.82rem; }
+    .balance-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+    .balance-field { padding:16px; border-radius:18px; background:var(--bg); }
+    .balance-field label { display:flex; justify-content:space-between; text-transform:none; letter-spacing:0; font-size:.9rem; }
+    .balance-field input { padding:12px; margin-top:4px; background:var(--surface); }
+    .transfer-list { display:grid; gap:10px; margin-top:20px; }
+    .transfer { display:flex; justify-content:space-between; gap:12px; padding:15px 17px; border:1px solid var(--line); border-radius:15px; background:var(--surface); }
+    .transfer strong { color:var(--accent-dark); }
+    .history { margin-top:20px; padding:24px; }
+    .history-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .history-list { display:grid; gap:8px; margin-top:14px; }
+    .history-item { display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line); color:var(--muted); font-size:.9rem; }
+    .empty { color:var(--muted); font-size:.9rem; }
+    @media (max-width:720px) { .shell{width:min(100% - 20px,560px);padding-top:22px} header{align-items:flex-start}.cards{grid-template-columns:repeat(2,1fr)}.balance-grid{grid-template-columns:1fr}.summary{align-items:flex-start;flex-direction:column}.mode{padding:20px}.tab{font-size:.83rem;padding:12px 8px} }
+    @media (max-width:390px) { .cards{grid-template-columns:1fr}.actions>*{width:100%} }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div><p class="eyebrow">Pocket allocation manager</p><h1>PocketPilot</h1><p class="tagline">Give every rupiah a destination. Allocate with intention, then rebalance without losing sight of the whole.</p></div>
+      <button class="icon-button" id="themeToggle" type="button" aria-label="Toggle dark mode">◐</button>
+    </header>
+    <nav class="tabs panel" aria-label="Calculator modes">
+      <button class="tab active" data-mode="allocation" type="button">New allocation</button>
+      <button class="tab" data-mode="redistribution" type="button">Redistribution</button>
+    </nav>
+    <section class="panel mode active" id="allocationMode">
+      <div class="section-head"><div><h2>Start with a number.</h2><p class="hint">Split a fresh income into four purposeful pockets.</p></div></div>
+      <div class="input-wrap"><label for="allocationAmount">Amount to allocate</label><input id="allocationAmount" inputmode="numeric" placeholder="e.g. 10.000.000" autocomplete="off"><p class="error" id="allocationError" role="alert"></p></div>
+      <div class="actions"><button class="primary" id="allocateButton" type="button">Allocate my money</button><button class="secondary" id="copyAllocation" type="button">Copy results</button><button class="danger" id="resetAllocation" type="button">Reset</button></div>
+      <div id="allocationOutput" hidden><div class="summary"><span>Total allocated</span><strong id="allocationTotal">Rp0</strong></div><div class="cards" id="allocationCards"></div></div>
+    </section>
+    <section class="panel mode" id="redistributionMode">
+      <div class="section-head"><div><h2>Bring it back to balance.</h2><p class="hint">Enter what each pocket holds today. The total never changes.</p></div></div>
+      <div class="balance-grid" id="balanceFields"></div><p class="error" id="redistributionError" role="alert"></p>
+      <div class="actions"><button class="primary" id="redistributeButton" type="button">Find my balance</button><button class="secondary" id="copyRedistribution" type="button">Copy results</button><button class="danger" id="resetRedistribution" type="button">Reset</button></div>
+      <div id="redistributionOutput" hidden><div class="summary"><span>Total wealth preserved</span><strong id="redistributionTotal">Rp0</strong></div><div class="cards" id="redistributionCards"></div><h3 style="margin-top:28px">Transfer plan</h3><div class="transfer-list" id="transferList"></div></div>
+    </section>
+    <section class="panel history"><div class="history-head"><div><h2>Recent flights</h2><p class="hint">Your last calculations, kept on this device.</p></div><button class="danger" id="clearHistory" type="button">Clear history</button></div><div class="history-list" id="historyList"></div></section>
+  </main>
+  <script>
+    (() => {
+      const pockets = [
+        { name:'Wealth', ratio:50, icon:'◒', bg:'var(--lav)' },
+        { name:'Income', ratio:25, icon:'↗', bg:'var(--pink)' },
+        { name:'Safety', ratio:15, icon:'⌂', bg:'var(--sage)' },
+        { name:'Rewards', ratio:10, icon:'✦', bg:'var(--gold)' }
+      ];
+      const pocketNames = pockets.map(p => p.name);
+      const safeNumber = value => typeof value === 'number' ? value : (/^-/.test(String(value).trim()) || /^\+?\d+\.\d+$/.test(String(value).trim()) ? NaN : Number(String(value).replace(/[^0-9]/g, '')));
+      const validateAmount = value => { const n = safeNumber(value); return Number.isSafeInteger(n) && n > 0; };
+      const formatRupiah = value => new Intl.NumberFormat('id-ID', { style:'currency', currency:'IDR', maximumFractionDigits:0 }).format(Math.round(value || 0));
+      const allocate = total => {
+        if (!Number.isSafeInteger(total) || total < 0) throw new Error('Total must be a non-negative integer');
+        const totalBig = BigInt(total);
+        const rows = pockets.map((p, index) => { const base = (totalBig * BigInt(p.ratio)) / 100n; const remainder = Number((totalBig * BigInt(p.ratio)) % 100n); return { name:p.name, ratio:p.ratio, value:Number(base), remainder, index }; });
+        let remaining = total - rows.reduce((sum, row) => sum + row.value, 0);
+        rows.sort((a,b) => b.remainder - a.remainder || a.index - b.index);
+        for (let i=0; i<remaining; i++) rows[i % rows.length].value++;
+        rows.sort((a,b) => a.index - b.index);
+        const amounts = Object.fromEntries(rows.map(row => [row.name, row.value]));
+        return { total, amounts, rows };
+      };
+      const redistribute = balances => {
+        if (!balances || pocketNames.some(name => !Number.isSafeInteger(balances[name]) || balances[name] < 0)) throw new Error('Balances must be whole, non-negative integers');
+        const actual = Object.fromEntries(pocketNames.map(name => [name, balances[name]]));
+        const total = pocketNames.reduce((sum, name) => sum + actual[name], 0);
+        const targets = allocate(total).amounts;
+        const surplus = pocketNames.map(name => ({ name, amount:Math.max(0, actual[name]-targets[name]) }));
+        const deficit = pocketNames.map(name => ({ name, amount:Math.max(0, targets[name]-actual[name]) }));
+        const transfers = []; let i=0, j=0;
+        while (i < surplus.length && j < deficit.length) { if (!surplus[i].amount) { i++; continue; } if (!deficit[j].amount) { j++; continue; } const amount = Math.min(surplus[i].amount, deficit[j].amount); transfers.push({ from:surplus[i].name, to:deficit[j].name, amount }); surplus[i].amount -= amount; deficit[j].amount -= amount; }
+        return { total, actual, targets, transfers, totalOut:transfers.reduce((sum,t)=>sum+t.amount,0), totalIn:transfers.reduce((sum,t)=>sum+t.amount,0) };
+      };
+      window.PocketPilot = { allocate, redistribute, formatRupiah, validateAmount };
+      const $ = id => document.getElementById(id);
+      const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+      const readHistory = () => { try { const value = JSON.parse(localStorage.getItem('pocketpilot-history') || '[]'); return Array.isArray(value) ? value : []; } catch { return []; } };
+      const saveHistory = item => { try { const history = [item, ...readHistory()].slice(0,8); localStorage.setItem('pocketpilot-history', JSON.stringify(history)); renderHistory(); } catch {} };
+      const renderHistory = () => { const history = readHistory(); $('historyList').innerHTML = history.length ? history.map(item => `<div class="history-item"><span>${escapeHtml(item.type)} · ${escapeHtml(item.date)}</span><strong>${formatRupiah(item.total)}</strong></div>`).join('') : '<p class="empty">No calculations yet.</p>'; };
+      const renderCards = (target, result, mode) => { target.innerHTML = pockets.map(p => { const value = mode === 'allocation' ? result.amounts[p.name] : result.actual[p.name]; const targetValue = mode === 'redistribution' ? `<div class="meta">Target ${formatRupiah(result.targets[p.name])}</div>` : `<div class="meta">${p.ratio}% of total</div>`; return `<article class="pocket-card" style="--pocket-bg:${p.bg}"><div class="pocket-icon" aria-hidden="true">${p.icon}</div><h3>${p.name}</h3><div class="amount">${formatRupiah(value)}</div>${targetValue}</article>`; }).join(''); };
+      const parseInput = input => safeNumber(input.value);
+      const showError = (element, message) => { element.textContent = message; };
+      const doAllocation = () => { const value = parseInput($('allocationAmount')); if (!validateAmount(value)) return showError($('allocationError'), 'Enter a whole Rupiah amount greater than zero.'); showError($('allocationError'), ''); const result = allocate(value); $('allocationTotal').textContent = formatRupiah(result.total); renderCards($('allocationCards'), result, 'allocation'); $('allocationOutput').hidden = false; saveHistory({ type:'Allocation', total:value, date:new Date().toLocaleString('id-ID') }); };
+      const doRedistribution = () => { const balances = Object.fromEntries(pocketNames.map(name => [name, parseInput($(`balance-${name}`))])); if (pocketNames.some(name => !Number.isSafeInteger(balances[name]) || balances[name] < 0)) return showError($('redistributionError'), 'Use whole, non-negative Rupiah amounts in every pocket.'); const result = redistribute(balances); showError($('redistributionError'), ''); $('redistributionTotal').textContent = formatRupiah(result.total); renderCards($('redistributionCards'), result, 'redistribution'); $('transferList').innerHTML = result.transfers.length ? result.transfers.map(t => `<div class="transfer"><span>Move <strong>${formatRupiah(t.amount)}</strong> from ${t.from} to ${t.to}</span><span aria-hidden="true">→</span></div>`).join('') : '<p class="empty">Everything is already balanced.</p>'; $('redistributionOutput').hidden = false; saveHistory({ type:'Redistribution', total:result.total, date:new Date().toLocaleString('id-ID') }); };
+      const copyText = text => { if (navigator.clipboard) return navigator.clipboard.writeText(text).then(() => alert('Results copied.')).catch(() => alert(text)); const area=document.createElement('textarea'); area.value=text; document.body.appendChild(area); area.select(); document.execCommand('copy'); area.remove(); alert('Results copied.'); };
+      $('allocateButton').addEventListener('click', doAllocation); $('redistributeButton').addEventListener('click', doRedistribution);
+      $('copyAllocation').addEventListener('click', () => { const value = parseInput($('allocationAmount')); if (validateAmount(value)) { const r=allocate(value); copyText(pockets.map(p => `${p.name}: ${formatRupiah(r.amounts[p.name])}`).join('\n')); } });
+      $('copyRedistribution').addEventListener('click', () => { const value = Object.fromEntries(pocketNames.map(n => [n, parseInput($(`balance-${n}`))])); if (pocketNames.some(n => !Number.isSafeInteger(value[n]) || value[n] < 0)) return showError($('redistributionError'), 'Use whole, non-negative Rupiah amounts in every pocket.'); const r=redistribute(value); copyText(r.transfers.map(t => `${t.from} -> ${t.to}: ${formatRupiah(t.amount)}`).join('\n') || 'Already balanced.'); });
+      $('resetAllocation').addEventListener('click', () => { $('allocationAmount').value=''; $('allocationOutput').hidden=true; showError($('allocationError'),''); }); $('resetRedistribution').addEventListener('click', () => { pocketNames.forEach(n => $(`balance-${n}`).value=''); $('redistributionOutput').hidden=true; showError($('redistributionError'),''); });
+      $('clearHistory').addEventListener('click', () => { try { localStorage.removeItem('pocketpilot-history'); } catch {} renderHistory(); });
+      document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.mode').forEach(m=>m.classList.remove('active')); tab.classList.add('active'); $(`${tab.dataset.mode}Mode`).classList.add('active'); }));
+      $('themeToggle').addEventListener('click', () => { const dark = document.documentElement.dataset.theme === 'dark'; document.documentElement.dataset.theme = dark ? '' : 'dark'; try { localStorage.setItem('pocketpilot-theme', dark ? 'light' : 'dark'); } catch {} });
+      $('balanceFields').innerHTML = pockets.map(p => `<div class="balance-field"><label for="balance-${p.name}"><span>${p.icon} ${p.name}</span><span>${p.ratio}% target</span></label><input id="balance-${p.name}" inputmode="numeric" placeholder="Rp0"></div>`).join('');
+      try { if (localStorage.getItem('pocketpilot-theme') === 'dark') document.documentElement.dataset.theme='dark'; } catch {} renderHistory();
+    })();
+  </script>
+</body>
+</html>
