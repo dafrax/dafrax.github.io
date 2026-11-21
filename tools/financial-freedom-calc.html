@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kalkulator Financial Freedom - 4% Rule</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f7fa;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      max-width: 420px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.4rem;
+      color: #1e40af;
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: 600;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 20px;
+      background-color: #1e40af;
+      color: white;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1d4ed8;
+    }
+    .result {
+      margin-top: 20px;
+      background: #eff6ff;
+      padding: 15px;
+      border-radius: 10px;
+      border-left: 4px solid #1e40af;
+    }
+    .result strong {
+      color: #1e40af;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Kalkulator Financial Freedom<br>(4% Rule)</h1>
+
+    <label for="expense">Pengeluaran Tahunan (Rp)</label>
+
+    <input type="number" id="expense" placeholder="Contoh: 100000000" />
+
+    <label for="returnRate">Rata-rata Imbal Hasil (%)</label>
+    <input type="number" id="returnRate" value="7" step="0.1" />
+
+    <label for="withdrawRate">Persentase Penarikan Aman (%)</label>
+    <input type="number" id="withdrawRate" value="4" step="0.1" />
+
+    <button onclick="calculateFreedom()">Hitung Dana Financial Freedom</button>
+
+    <div class="result" id="result" style="display:none;"></div>
+  </div>
+
+  <script>
+    // 🔹 Fungsi untuk format ke Rupiah dengan titik ribuan
+    function formatRupiah(angka) {
+      return angka.toLocaleString('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      });
+    }
+
+    function calculateFreedom() {
+      const expense = parseFloat(document.getElementById('expense').value);
+      const returnRate = parseFloat(document.getElementById('returnRate').value);
+      const withdrawRate = parseFloat(document.getElementById('withdrawRate').value);
+
+      if (isNaN(expense) || expense <= 0) {
+        alert('Masukkan pengeluaran tahunan dengan benar.');
+        return;
+      }
+
+      const neededCapital = expense / (withdrawRate / 100);
+      const investmentReturn = neededCapital * (returnRate / 100);
+      const inflationAllowance = investmentReturn - expense;
+
+      const resultDiv = document.getElementById('result');
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `
+        <p><strong>Total Dana Diperlukan:</strong><br>${formatRupiah(neededCapital)}</p>
+        <p><strong>Hasil Investasi (≈${returnRate}%/tahun):</strong><br>${formatRupiah(investmentReturn)}</p>
+        <p><strong>Penarikan Aman (${withdrawRate}%):</strong><br>${formatRupiah(expense)}</p>
+        <p><strong>Cadangan Inflasi (~3%):</strong><br>${formatRupiah(inflationAllowance)}</p>
+        <hr>
+        <p><strong>Kesimpulan:</strong><br>
+        Dengan imbal hasil rata-rata ${returnRate}%, kamu bisa menarik ${withdrawRate}% tiap tahun untuk memenuhi gaya hidup senilai ${formatRupiah(expense)} tanpa mengurangi modal ${formatRupiah(neededCapital)}.</p>
+      `;
+    }
+  </script>
+</body>
+</html>
