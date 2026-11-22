@@ -18,5 +18,15 @@
     "icon": "chart",
     "tags": ["finance", "calculator", "planning"],
     "status": "active"
+  },
+  {
+    "id": "financial-freedom-simulator",
+    "name": "Goal-Based Financial Freedom Simulator",
+    "description": "Hitung target modal, proyeksi aset, gap, dan setoran untuk mencapai Financial Freedom.",
+    "category": "Productivity",
+    "url": "./financial-freedom-simulator.html",
+    "icon": "chart",
+    "tags": ["finance", "goal", "simulation", "planning"],
+    "status": "active"
   }
 ]

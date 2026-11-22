@@ -8,6 +8,8 @@ Personal tools portal hosted at `https://dafrax.github.io/tools/` with a catalog
 - `tools.json` - single source of truth for active tools.
 - `PocketPilot.html` - pocket allocation and redistribution calculator.
 - `financial-freedom-calc.html` - financial freedom calculator.
+- `financial-freedom-simulator.html` - simple goal-first Financial Freedom calculator.
+- `financial-freedom-simulator-master-prompt.md` - simulator specification.
 
 ## Local Development
 
